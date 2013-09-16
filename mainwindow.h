@@ -3,6 +3,10 @@
 
 #include <QMainWindow>
 
+#include <groove.h>
+#include "playerthread.h"
+
+
 namespace Ui {
 class MainWindow;
 }
@@ -17,6 +21,12 @@ public:
     
 private:
     Ui::MainWindow *ui;
+
+    GroovePlayer *player;
+    PlayerThread *player_thread;
+
+private slots:
+    void refreshNowPlaying();
 };
 
 #endif // MAINWINDOW_H
