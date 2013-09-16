@@ -3,6 +3,7 @@
 
 
 #include <QFileInfo>
+#include <QtDebug>
 
 
 MainWindow::MainWindow(QWidget *parent) :
@@ -22,8 +23,10 @@ MainWindow::MainWindow(QWidget *parent) :
 
 MainWindow::~MainWindow()
 {
+    groove_destroy_player(player);
     delete ui;
 }
+
 
 void MainWindow::refreshNowPlaying() {
     QString text;
