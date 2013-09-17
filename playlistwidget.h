@@ -13,8 +13,10 @@ public:
 protected:
     void dragEnterEvent(QDragEnterEvent *) override;
     void dropEvent(QDropEvent *) override;
+    void dragMoveEvent(QDragMoveEvent *) override;
 
 signals:
+    void queueSong(QString);
     
 public slots:
     

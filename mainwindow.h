@@ -26,8 +26,12 @@ private:
     GroovePlayer *player;
     PlayerThread *player_thread;
 
+    void refreshToggleCaption();
+
 private slots:
     void refreshNowPlaying();
+    void queueSong(QString song);
+    void on_toggleBtn_clicked();
 };
 
 #endif // MAINWINDOW_H
