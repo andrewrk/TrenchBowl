@@ -24,20 +24,26 @@ HEADERS  += mainwindow.h \
 
 FORMS    += mainwindow.ui
 
-
-LIBS += -L$$PWD/libgroove/src/ -lgroove
-
 INCLUDEPATH += $$PWD/libgroove/src
-DEPENDPATH += $$PWD/libgroove/src
 
-
+LIBS += $$PWD/libgroove/src/libgroove.a
 LIBS += $$PWD/libgroove/deps/libav/out/lib/libavfilter.a
 LIBS += $$PWD/libgroove/deps/libav/out/lib/libavformat.a
 LIBS += $$PWD/libgroove/deps/libav/out/lib/libavcodec.a
 LIBS += $$PWD/libgroove/deps/libav/out/lib/libavresample.a
 LIBS += $$PWD/libgroove/deps/libav/out/lib/libswscale.a
 LIBS += $$PWD/libgroove/deps/libav/out/lib/libavutil.a
-
 LIBS += $$PWD/libgroove/deps/ebur128/build/libebur128.a
 
 LIBS += -lSDL -lbz2 -lz -lm -pthread
+
+
+
+PRE_TARGETDEPS += $$PWD/libgroove/src/libgroove.a
+PRE_TARGETDEPS += $$PWD/libgroove/deps/libav/out/lib/libavfilter.a
+PRE_TARGETDEPS += $$PWD/libgroove/deps/libav/out/lib/libavformat.a
+PRE_TARGETDEPS += $$PWD/libgroove/deps/libav/out/lib/libavcodec.a
+PRE_TARGETDEPS += $$PWD/libgroove/deps/libav/out/lib/libavresample.a
+PRE_TARGETDEPS += $$PWD/libgroove/deps/libav/out/lib/libswscale.a
+PRE_TARGETDEPS += $$PWD/libgroove/deps/libav/out/lib/libavutil.a
+PRE_TARGETDEPS += $$PWD/libgroove/deps/ebur128/build/libebur128.a

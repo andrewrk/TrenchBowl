@@ -3,7 +3,11 @@
 
 
 #include <QFileInfo>
+#include <QDir>
+#include <QDirIterator>
+#include <QTime>
 #include <QtDebug>
+#include <QTimer>
 
 
 MainWindow::MainWindow(QWidget *parent) :
@@ -22,6 +26,8 @@ MainWindow::MainWindow(QWidget *parent) :
     ok = connect(this->ui->playlist, SIGNAL(queueSong(QString)), this, SLOT(queueSong(QString)));
     Q_ASSERT(ok);
     this->player_thread->start();
+
+
 }
 
 MainWindow::~MainWindow()
@@ -56,20 +62,60 @@ static QString fileDescription(GrooveFile *file) {
     }
 }
 
-void MainWindow::queueSong(QString song) {
-    GrooveFile *file = groove_open(song.toUtf8().data());
+void MainWindow::queueFile(QString file_path) {
+    GrooveFile *file = groove_open(file_path.toUtf8().data());
     if (!file) {
-        qDebug() << "Error opening" << song;
+        qDebug() << "Error opening" << file_path;
         return;
     }
-    ui->playlist->addItem(fileDescription(file));
     groove_player_queue(player, file);
+    refreshNowPlaying();
+}
+
+void MainWindow::queueSong(QString song_path) {
+    QFileInfo song_path_info(song_path);
+    if (song_path_info.isDir()) {
+        QDirIterator iterator(QDir(song_path).absolutePath(), QDirIterator::Subdirectories);
+        while (iterator.hasNext()) {
+            iterator.next();
+            if (iterator.fileInfo().isFile()) {
+                queueFile(iterator.filePath());
+            }
+        }
+    } else {
+        queueFile(song_path);
+    }
+}
+
+static QString secondsDisplay(double seconds) {
+    QTime time = QTime(0, 0, 0).addMSecs(seconds * 1000);
+    const double ONE_HOUR = 60 * 60;
+    QString fmt = seconds > ONE_HOUR ? "h:mm:ss" : "m:ss";
+    return time.toString(fmt);
 }
 
 void MainWindow::refreshNowPlaying() {
-    QString text = player->queue_head ? fileDescription(player->queue_head->file) : "nothing playing";
-    this->ui->nowPlayingLbl->setText(text);
     refreshToggleCaption();
+
+
+    ui->prevBtn->setEnabled(false);
+    if (player->queue_head) {
+        GrooveFile *file = player->queue_head->file;
+        ui->nowPlayingLbl->setText(fileDescription(file));
+        ui->nextBtn->setEnabled(true);
+        ui->durationLbl->setText(secondsDisplay(groove_file_duration(file)));
+    } else {
+        ui->nowPlayingLbl->setText("nothing playing");
+        ui->nextBtn->setEnabled(false);
+        ui->durationLbl->setText("0:00");
+    }
+
+    ui->playlist->clear();
+    GrooveQueueItem *item = player->queue_head;
+    while (item) {
+        ui->playlist->addItem(fileDescription(item->file));
+        item = item->next;
+    }
 }
 
 void MainWindow::on_toggleBtn_clicked()
