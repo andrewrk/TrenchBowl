@@ -23,7 +23,7 @@ MainWindow::MainWindow(QWidget *parent) :
     bool ok;
     ok = connect(this->player_thread, SIGNAL(nowPlayingUpdated()), this, SLOT(refreshNowPlaying()));
     Q_ASSERT(ok);
-    ok = connect(this->ui->playlist, SIGNAL(queueSong(QString)), this, SLOT(queueSong(QString)));
+    ok = connect(this->ui->playlist, SIGNAL(queueUrl(QUrl)), this, SLOT(queueUrl(QUrl)));
     Q_ASSERT(ok);
     this->player_thread->start();
 
@@ -72,18 +72,23 @@ void MainWindow::queueFile(QString file_path) {
     refreshNowPlaying();
 }
 
-void MainWindow::queueSong(QString song_path) {
-    QFileInfo song_path_info(song_path);
-    if (song_path_info.isDir()) {
-        QDirIterator iterator(QDir(song_path).absolutePath(), QDirIterator::Subdirectories);
-        while (iterator.hasNext()) {
-            iterator.next();
-            if (iterator.fileInfo().isFile()) {
-                queueFile(iterator.filePath());
+void MainWindow::queueUrl(QUrl url) {
+    if (url.isLocalFile()) {
+        QString file_path = url.toLocalFile();
+        QFileInfo file_path_info(file_path);
+        if (file_path_info.isDir()) {
+            QDirIterator iterator(QDir(file_path).absolutePath(), QDirIterator::Subdirectories);
+            while (iterator.hasNext()) {
+                iterator.next();
+                if (iterator.fileInfo().isFile()) {
+                    queueFile(iterator.filePath());
+                }
             }
+        } else {
+            queueFile(file_path);
         }
     } else {
-        queueFile(song_path);
+        queueFile(url.toString());
     }
 }
 

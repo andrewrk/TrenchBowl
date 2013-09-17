@@ -2,6 +2,7 @@
 #define MAINWINDOW_H
 
 #include <QMainWindow>
+#include <QUrl>
 
 #include <groove.h>
 #include "playerthread.h"
@@ -31,7 +32,7 @@ private:
 
 private slots:
     void refreshNowPlaying();
-    void queueSong(QString song);
+    void queueUrl(QUrl song);
     void on_toggleBtn_clicked();
 };
 

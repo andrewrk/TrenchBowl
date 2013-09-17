@@ -2,6 +2,7 @@
 #define PLAYLISTWIDGET_H
 
 #include <QListWidget>
+#include <QUrl>
 
 class PlaylistWidget : public QListWidget
 {
@@ -16,7 +17,7 @@ protected:
     void dragMoveEvent(QDragMoveEvent *) override;
 
 signals:
-    void queueSong(QString);
+    void queueUrl(QUrl);
     
 public slots:
     

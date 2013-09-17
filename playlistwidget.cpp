@@ -27,7 +27,7 @@ void PlaylistWidget::dropEvent(QDropEvent *event)
 
     QList<QUrl> urls = event->mimeData()->urls();
     foreach (QUrl url, urls) {
-        emit queueSong(url.toString());
+        emit queueUrl(url.toString());
     }
 }
 
