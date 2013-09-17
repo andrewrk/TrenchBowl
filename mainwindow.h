@@ -33,6 +33,8 @@ private:
 private slots:
     void refreshNowPlaying();
     void queueUrl(QUrl song);
+    void refreshPosDisplay();
+
     void on_toggleBtn_clicked();
     void on_nextBtn_clicked();
 };

@@ -8,7 +8,7 @@
 #include <QTime>
 #include <QtDebug>
 #include <QTimer>
-
+#include <QFont>
 
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
@@ -27,7 +27,10 @@ MainWindow::MainWindow(QWidget *parent) :
     Q_ASSERT(ok);
     this->player_thread->start();
 
-
+    QTimer *timer = new QTimer(this);
+    timer->setInterval(16);
+    ok = connect(timer, SIGNAL(timeout()), this, SLOT(refreshPosDisplay()));
+    Q_ASSERT(ok);
 }
 
 MainWindow::~MainWindow()
@@ -92,6 +95,10 @@ void MainWindow::queueUrl(QUrl url) {
     }
 }
 
+void MainWindow::refreshPosDisplay()
+{
+}
+
 static QString secondsDisplay(double seconds) {
     QTime time = QTime(0, 0, 0).addMSecs(seconds * 1000);
     const double ONE_HOUR = 60 * 60;
@@ -101,7 +108,7 @@ static QString secondsDisplay(double seconds) {
 
 void MainWindow::refreshNowPlaying() {
     refreshToggleCaption();
-
+    refreshPosDisplay();
 
     ui->prevBtn->setEnabled(false);
     if (player->queue_head) {
@@ -121,6 +128,9 @@ void MainWindow::refreshNowPlaying() {
         ui->playlist->addItem(fileDescription(item->file));
         item = item->next;
     }
+    QFont font = ui->playlist->item(0)->font();
+    font.setBold(true);
+    ui->playlist->item(0)->setFont(font);
 }
 
 void MainWindow::on_toggleBtn_clicked()
