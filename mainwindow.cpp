@@ -96,11 +96,19 @@ void MainWindow::queueUrl(QUrl url) {
     }
 }
 
+static QString secondsDisplay(double seconds) {
+    QTime time = QTime(0, 0, 0).addMSecs(seconds * 1000);
+    const double ONE_HOUR = 60 * 60;
+    QString fmt = seconds > ONE_HOUR ? "h:mm:ss" : "m:ss";
+    return time.toString(fmt);
+}
+
 void MainWindow::refreshPosDisplay()
 {
     if (!player->queue_head) {
         ui->seekBar->setValue(ui->seekBar->minimum());
         ui->seekBar->setEnabled(false);
+        ui->posLbl->setText("0:00");
         return;
     }
     double duration = groove_file_duration(player->queue_head->file);
@@ -109,13 +117,7 @@ void MainWindow::refreshPosDisplay()
     double max = ui->seekBar->maximum();
     double val = min + (max - min) * (pos / duration);
     ui->seekBar->setValue(val);
-}
-
-static QString secondsDisplay(double seconds) {
-    QTime time = QTime(0, 0, 0).addMSecs(seconds * 1000);
-    const double ONE_HOUR = 60 * 60;
-    QString fmt = seconds > ONE_HOUR ? "h:mm:ss" : "m:ss";
-    return time.toString(fmt);
+    ui->posLbl->setText(secondsDisplay(pos));
 }
 
 void MainWindow::refreshNowPlaying() {
