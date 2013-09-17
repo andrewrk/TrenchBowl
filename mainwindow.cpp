@@ -145,9 +145,11 @@ void MainWindow::refreshNowPlaying() {
         ui->playlist->addItem(fileDescription(item->file));
         item = item->next;
     }
-    QFont font = ui->playlist->item(0)->font();
-    font.setBold(true);
-    ui->playlist->item(0)->setFont(font);
+    if (ui->playlist->count() > 0) {
+        QFont font = ui->playlist->item(0)->font();
+        font.setBold(true);
+        ui->playlist->item(0)->setFont(font);
+    }
 }
 
 void MainWindow::on_toggleBtn_clicked()
