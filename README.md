@@ -3,8 +3,6 @@
 Simple music player UI to demonstrate
 [libgroove](https://github.com/superjoe30/libgroove).
 
-Status: not done yet
-
 ## Building
 
 1. Clone [libgroove](https://github.com/superjoe30/libgroove)

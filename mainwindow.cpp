@@ -118,6 +118,7 @@ void MainWindow::refreshPosDisplay()
     double val = min + (max - min) * (pos / duration);
     ui->seekBar->setValue(val);
     ui->posLbl->setText(secondsDisplay(pos));
+    ui->durationLbl->setText(secondsDisplay(duration));
 }
 
 void MainWindow::refreshNowPlaying() {
