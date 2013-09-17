@@ -64,6 +64,15 @@
       </item>
       <item>
        <widget class="QSlider" name="seekBar">
+        <property name="maximum">
+         <number>2147483647</number>
+        </property>
+        <property name="singleStep">
+         <number>71582788</number>
+        </property>
+        <property name="pageStep">
+         <number>429496729</number>
+        </property>
         <property name="orientation">
          <enum>Qt::Horizontal</enum>
         </property>

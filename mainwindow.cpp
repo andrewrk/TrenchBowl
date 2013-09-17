@@ -31,6 +31,7 @@ MainWindow::MainWindow(QWidget *parent) :
     timer->setInterval(16);
     ok = connect(timer, SIGNAL(timeout()), this, SLOT(refreshPosDisplay()));
     Q_ASSERT(ok);
+    timer->start();
 }
 
 MainWindow::~MainWindow()
@@ -97,6 +98,17 @@ void MainWindow::queueUrl(QUrl url) {
 
 void MainWindow::refreshPosDisplay()
 {
+    if (!player->queue_head) {
+        ui->seekBar->setValue(ui->seekBar->minimum());
+        ui->seekBar->setEnabled(false);
+        return;
+    }
+    double duration = groove_file_duration(player->queue_head->file);
+    double pos = groove_player_position(player);
+    double min = ui->seekBar->minimum();
+    double max = ui->seekBar->maximum();
+    double val = min + (max - min) * (pos / duration);
+    ui->seekBar->setValue(val);
 }
 
 static QString secondsDisplay(double seconds) {
