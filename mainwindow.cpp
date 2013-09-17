@@ -136,3 +136,8 @@ void MainWindow::on_toggleBtn_clicked()
     }
     refreshToggleCaption();
 }
+
+void MainWindow::on_nextBtn_clicked()
+{
+    groove_player_next(player);
+}

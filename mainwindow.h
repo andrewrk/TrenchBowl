@@ -34,6 +34,7 @@ private slots:
     void refreshNowPlaying();
     void queueUrl(QUrl song);
     void on_toggleBtn_clicked();
+    void on_nextBtn_clicked();
 };
 
 #endif // MAINWINDOW_H
