@@ -113,10 +113,13 @@ void MainWindow::refreshNowPlaying() {
     ui->prevBtn->setEnabled(false);
     if (player->queue_head) {
         GrooveFile *file = player->queue_head->file;
-        ui->nowPlayingLbl->setText(fileDescription(file));
+        QString desc = fileDescription(file);
+        this->setWindowTitle(QString("%1 - TrenchBowl").arg(desc));
+        ui->nowPlayingLbl->setText(desc);
         ui->nextBtn->setEnabled(true);
         ui->durationLbl->setText(secondsDisplay(groove_file_duration(file)));
     } else {
+        this->setWindowTitle("TrenchBowl");
         ui->nowPlayingLbl->setText("nothing playing");
         ui->nextBtn->setEnabled(false);
         ui->durationLbl->setText("0:00");
