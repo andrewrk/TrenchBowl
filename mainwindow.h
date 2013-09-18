@@ -28,7 +28,7 @@ private:
     GroovePlayer *player;
     PlayerThread *player_thread;
 
-    GrooveQueueItem *seek_down = NULL;
+    GroovePlaylistItem *seek_down = NULL;
 
     void refreshToggleCaption();
     void queueFile(QString file_path);

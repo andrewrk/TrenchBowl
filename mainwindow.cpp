@@ -107,7 +107,7 @@ void MainWindow::refreshPosDisplay()
         return;
 
     double pos;
-    GrooveQueueItem *item;
+    GroovePlaylistItem *item;
     groove_player_position(player, &item, &pos);
     if (!item) {
         ui->seekBar->setValue(ui->seekBar->minimum());
@@ -128,7 +128,7 @@ void MainWindow::refreshPosDisplay()
 void MainWindow::removeSelectedItems()
 {
     foreach (QListWidgetItem *item, ui->playlist->selectedItems()) {
-        GrooveQueueItem *q_item = (GrooveQueueItem *)item->data(Qt::UserRole).value<void *>();
+        GroovePlaylistItem *q_item = (GroovePlaylistItem *)item->data(Qt::UserRole).value<void *>();
         groove_player_remove(player, q_item);
     }
     qDeleteAll(ui->playlist->selectedItems());
@@ -138,7 +138,7 @@ void MainWindow::refreshNowPlaying() {
     refreshToggleCaption();
     refreshPosDisplay();
 
-    GrooveQueueItem *item;
+    GroovePlaylistItem *item;
     groove_player_position(player, &item, NULL);
 
     if (item) {
@@ -157,7 +157,7 @@ void MainWindow::refreshNowPlaying() {
     }
 
     ui->playlist->clear();
-    GrooveQueueItem *node = player->queue_head;
+    GroovePlaylistItem *node = player->playlist_head;
     while (node) {
         ui->playlist->addItem(fileDescription(node->file));
         QListWidgetItem *widget_item = ui->playlist->item(ui->playlist->count() - 1);
@@ -183,7 +183,7 @@ void MainWindow::on_toggleBtn_clicked()
 
 void MainWindow::on_nextBtn_clicked()
 {
-    GrooveQueueItem *item;
+    GroovePlaylistItem *item;
     groove_player_position(player, &item, NULL);
     if (item && item->next)
         groove_player_seek(player, item->next, 0);
@@ -191,7 +191,7 @@ void MainWindow::on_nextBtn_clicked()
 
 void MainWindow::on_prevBtn_clicked()
 {
-    GrooveQueueItem *item;
+    GroovePlaylistItem *item;
     groove_player_position(player, &item, NULL);
     if (item && item->prev)
         groove_player_seek(player, item->prev, 0);
@@ -223,6 +223,6 @@ void MainWindow::on_seekBar_sliderMoved(int position)
 
 void MainWindow::on_playlist_itemDoubleClicked(QListWidgetItem *item)
 {
-    GrooveQueueItem *q_item = (GrooveQueueItem *)item->data(Qt::UserRole).value<void *>();
+    GroovePlaylistItem *q_item = (GroovePlaylistItem *)item->data(Qt::UserRole).value<void *>();
     groove_player_seek(player, q_item, 0);
 }
