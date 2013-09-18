@@ -10,6 +10,7 @@
 #include <QTimer>
 #include <QFont>
 
+
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
     ui(new Ui::MainWindow)
@@ -148,12 +149,14 @@ void MainWindow::refreshNowPlaying() {
     GrooveQueueItem *node = player->queue_head;
     while (node) {
         ui->playlist->addItem(fileDescription(node->file));
+        QListWidgetItem *widget_item = ui->playlist->item(ui->playlist->count() - 1);
         if (node == item) {
-            QListWidgetItem *widget_item = ui->playlist->item(ui->playlist->count() - 1);
             QFont font = widget_item->font();
             font.setBold(true);
             widget_item->setFont(font);
         }
+        widget_item->setData(Qt::UserRole, qVariantFromValue((void *) node));
+
         node = node->next;
     }
 }
@@ -202,5 +205,13 @@ void MainWindow::on_seekBar_sliderMoved(int position)
     double min = ui->seekBar->minimum();
     double max = ui->seekBar->maximum();
     double pos = duration * ((position - min) / (max - min));
+
+    ui->posLbl->setText(secondsDisplay(pos));
     groove_player_seek(player, seek_down, pos);
+}
+
+void MainWindow::on_playlist_itemDoubleClicked(QListWidgetItem *item)
+{
+    GrooveQueueItem *q_item = (GrooveQueueItem *)item->data(Qt::UserRole).value<void *>();
+    groove_player_seek(player, q_item, 0);
 }

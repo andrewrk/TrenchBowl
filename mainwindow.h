@@ -3,6 +3,7 @@
 
 #include <QMainWindow>
 #include <QUrl>
+#include <QListWidgetItem>
 
 #include <groove.h>
 #include "playerthread.h"
@@ -43,6 +44,7 @@ private slots:
     void on_seekBar_sliderPressed();
     void on_seekBar_sliderReleased();
     void on_seekBar_sliderMoved(int position);
+    void on_playlist_itemDoubleClicked(QListWidgetItem *item);
 };
 
 #endif // MAINWINDOW_H
