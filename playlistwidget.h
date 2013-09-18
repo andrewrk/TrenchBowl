@@ -2,6 +2,7 @@
 #define PLAYLISTWIDGET_H
 
 #include <QListWidget>
+#include <QListWidgetItem>
 #include <QUrl>
 
 class PlaylistWidget : public QListWidget
@@ -16,8 +17,11 @@ protected:
     void dropEvent(QDropEvent *) override;
     void dragMoveEvent(QDragMoveEvent *) override;
 
+    void keyPressEvent(QKeyEvent *event) override;
+
 signals:
     void queueUrl(QUrl);
+    void deletePressed();
     
 public slots:
     

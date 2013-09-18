@@ -38,3 +38,11 @@ void PlaylistWidget::dragMoveEvent(QDragMoveEvent *event)
         event->acceptProposedAction();
     }
 }
+
+void PlaylistWidget::keyPressEvent(QKeyEvent *event)
+{
+    if (event->key() == Qt::Key_Delete) {
+        emit deletePressed();
+        event->accept();
+    }
+}

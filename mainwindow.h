@@ -37,6 +37,7 @@ private slots:
     void refreshNowPlaying();
     void queueUrl(QUrl song);
     void refreshPosDisplay();
+    void removeSelectedItems();
 
     void on_toggleBtn_clicked();
     void on_nextBtn_clicked();

@@ -27,6 +27,8 @@ MainWindow::MainWindow(QWidget *parent) :
     Q_ASSERT(ok);
     ok = connect(this->ui->playlist, SIGNAL(queueUrl(QUrl)), this, SLOT(queueUrl(QUrl)));
     Q_ASSERT(ok);
+    ok = connect(this->ui->playlist, SIGNAL(deletePressed()), this, SLOT(removeSelectedItems()));
+    Q_ASSERT(ok);
     this->player_thread->start();
 
     QTimer *timer = new QTimer(this);
@@ -121,6 +123,15 @@ void MainWindow::refreshPosDisplay()
     ui->posLbl->setText(secondsDisplay(pos));
     ui->durationLbl->setText(secondsDisplay(duration));
     ui->seekBar->setEnabled(true);
+}
+
+void MainWindow::removeSelectedItems()
+{
+    foreach (QListWidgetItem *item, ui->playlist->selectedItems()) {
+        GrooveQueueItem *q_item = (GrooveQueueItem *)item->data(Qt::UserRole).value<void *>();
+        groove_player_remove(player, q_item);
+    }
+    qDeleteAll(ui->playlist->selectedItems());
 }
 
 void MainWindow::refreshNowPlaying() {
