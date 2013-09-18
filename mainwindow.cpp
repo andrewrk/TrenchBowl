@@ -66,7 +66,7 @@ void MainWindow::queueFile(QString file_path) {
         qDebug() << "Error opening" << file_path;
         return;
     }
-    groove_player_queue(player, file);
+    groove_player_insert(player, file, NULL);
     refreshNowPlaying();
 }
 
