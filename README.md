@@ -10,4 +10,4 @@ you should be able to open the project file with Qt Creator and run it.
 
 ## Screenshot
 
-![](http://i.imgur.com/7KptjEW.png)
+![](http://i.imgur.com/QphZUhr.png)
