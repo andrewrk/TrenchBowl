@@ -37,6 +37,7 @@ private slots:
 
     void on_toggleBtn_clicked();
     void on_nextBtn_clicked();
+    void on_prevBtn_clicked();
 };
 
 #endif // MAINWINDOW_H

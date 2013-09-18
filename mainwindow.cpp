@@ -42,15 +42,7 @@ MainWindow::~MainWindow()
 
 void MainWindow::refreshToggleCaption()
 {
-    switch (player->state) {
-    case GROOVE_STATE_PAUSED:
-    case GROOVE_STATE_STOPPED:
-        ui->toggleBtn->setText("Play");
-        break;
-    case GROOVE_STATE_PLAYING:
-        ui->toggleBtn->setText("Pause");
-        break;
-    }
+    ui->toggleBtn->setText(groove_player_playing(player) ? "Pause" : "Play");
 }
 
 
@@ -59,9 +51,11 @@ static QString fileDescription(GrooveFile *file) {
     GrooveTag *title_tag = groove_file_metadata_get(file, "title", NULL, 0);
 
     if (artist_tag && title_tag) {
-        return QString("%1 - %2").arg(groove_tag_value(artist_tag), groove_tag_value(title_tag));
+        QString artist = QString::fromUtf8(groove_tag_value(artist_tag));
+        QString title = QString::fromUtf8(groove_tag_value(title_tag));
+        return QString("%1 - %2").arg(artist, title);
     } else {
-        QFileInfo info(groove_file_filename(file));
+        QFileInfo info(file->filename);
         return info.fileName();
     }
 }
@@ -105,69 +99,86 @@ static QString secondsDisplay(double seconds) {
 
 void MainWindow::refreshPosDisplay()
 {
-    if (!player->queue_head) {
+    double pos;
+    GrooveQueueItem *item;
+    groove_player_position(player, &item, &pos);
+    if (!item) {
         ui->seekBar->setValue(ui->seekBar->minimum());
         ui->seekBar->setEnabled(false);
         ui->posLbl->setText("0:00");
         return;
     }
-    double duration = groove_file_duration(player->queue_head->file);
-    double pos = groove_player_position(player);
+    double duration = groove_file_duration(item->file);
     double min = ui->seekBar->minimum();
     double max = ui->seekBar->maximum();
     double val = min + (max - min) * (pos / duration);
     ui->seekBar->setValue(val);
     ui->posLbl->setText(secondsDisplay(pos));
     ui->durationLbl->setText(secondsDisplay(duration));
+    ui->seekBar->setEnabled(true);
 }
 
 void MainWindow::refreshNowPlaying() {
     refreshToggleCaption();
     refreshPosDisplay();
 
-    ui->prevBtn->setEnabled(false);
-    if (player->queue_head) {
-        GrooveFile *file = player->queue_head->file;
-        QString desc = fileDescription(file);
+    double pos;
+    GrooveQueueItem *item;
+    groove_player_position(player, &item, &pos);
+
+    if (item) {
+        qDebug() << "item->prev" << item->prev;
+        ui->prevBtn->setEnabled(item->prev != NULL);
+        ui->nextBtn->setEnabled(item->next != NULL);
+        QString desc = fileDescription(item->file);
         this->setWindowTitle(QString("%1 - TrenchBowl").arg(desc));
         ui->nowPlayingLbl->setText(desc);
-        ui->nextBtn->setEnabled(true);
-        ui->durationLbl->setText(secondsDisplay(groove_file_duration(file)));
+        ui->durationLbl->setText(secondsDisplay(groove_file_duration(item->file)));
     } else {
         this->setWindowTitle("TrenchBowl");
         ui->nowPlayingLbl->setText("nothing playing");
-        ui->nextBtn->setEnabled(false);
         ui->durationLbl->setText("0:00");
+        ui->prevBtn->setEnabled(false);
+        ui->nextBtn->setEnabled(false);
     }
 
     ui->playlist->clear();
-    GrooveQueueItem *item = player->queue_head;
-    while (item) {
-        ui->playlist->addItem(fileDescription(item->file));
-        item = item->next;
-    }
-    if (ui->playlist->count() > 0) {
-        QFont font = ui->playlist->item(0)->font();
-        font.setBold(true);
-        ui->playlist->item(0)->setFont(font);
+    GrooveQueueItem *node = player->queue_head;
+    while (node) {
+        ui->playlist->addItem(fileDescription(node->file));
+        if (node == item) {
+            QListWidgetItem *widget_item = ui->playlist->item(ui->playlist->count() - 1);
+            QFont font = widget_item->font();
+            font.setBold(true);
+            widget_item->setFont(font);
+        }
+        node = node->next;
     }
 }
 
 void MainWindow::on_toggleBtn_clicked()
 {
-    switch (player->state) {
-    case GROOVE_STATE_PAUSED:
-    case GROOVE_STATE_STOPPED:
-        groove_player_play(player);
-        break;
-    case GROOVE_STATE_PLAYING:
+    if (groove_player_playing(player))
         groove_player_pause(player);
-        break;
-    }
+    else
+        groove_player_play(player);
     refreshToggleCaption();
 }
 
 void MainWindow::on_nextBtn_clicked()
 {
-    groove_player_next(player);
+    GrooveQueueItem *item;
+    double pos;
+    groove_player_position(player, &item, &pos);
+    if (item && item->next)
+        groove_player_seek(player, item->next, 0);
+}
+
+void MainWindow::on_prevBtn_clicked()
+{
+    GrooveQueueItem *item;
+    double pos;
+    groove_player_position(player, &item, &pos);
+    if (item && item->prev)
+        groove_player_seek(player, item->prev, 0);
 }
