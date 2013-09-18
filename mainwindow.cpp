@@ -99,6 +99,9 @@ static QString secondsDisplay(double seconds) {
 
 void MainWindow::refreshPosDisplay()
 {
+    if (seek_down)
+        return;
+
     double pos;
     GrooveQueueItem *item;
     groove_player_position(player, &item, &pos);
@@ -122,12 +125,10 @@ void MainWindow::refreshNowPlaying() {
     refreshToggleCaption();
     refreshPosDisplay();
 
-    double pos;
     GrooveQueueItem *item;
-    groove_player_position(player, &item, &pos);
+    groove_player_position(player, &item, NULL);
 
     if (item) {
-        qDebug() << "item->prev" << item->prev;
         ui->prevBtn->setEnabled(item->prev != NULL);
         ui->nextBtn->setEnabled(item->next != NULL);
         QString desc = fileDescription(item->file);
@@ -168,8 +169,7 @@ void MainWindow::on_toggleBtn_clicked()
 void MainWindow::on_nextBtn_clicked()
 {
     GrooveQueueItem *item;
-    double pos;
-    groove_player_position(player, &item, &pos);
+    groove_player_position(player, &item, NULL);
     if (item && item->next)
         groove_player_seek(player, item->next, 0);
 }
@@ -177,8 +177,30 @@ void MainWindow::on_nextBtn_clicked()
 void MainWindow::on_prevBtn_clicked()
 {
     GrooveQueueItem *item;
-    double pos;
-    groove_player_position(player, &item, &pos);
+    groove_player_position(player, &item, NULL);
     if (item && item->prev)
         groove_player_seek(player, item->prev, 0);
+}
+
+void MainWindow::on_seekBar_sliderPressed()
+{
+    groove_player_position(player, &seek_down, NULL);
+}
+
+void MainWindow::on_seekBar_sliderReleased()
+{
+    seek_down = NULL;
+}
+
+void MainWindow::on_seekBar_sliderMoved(int position)
+{
+    if (!seek_down)
+        return;
+
+    double duration = groove_file_duration(seek_down->file);
+    double min = ui->seekBar->minimum();
+    double max = ui->seekBar->maximum();
+    double pos = duration * ((position - min) / (max - min));
+    qDebug() << "seek to" << pos;
+    groove_player_seek(player, seek_down, pos);
 }

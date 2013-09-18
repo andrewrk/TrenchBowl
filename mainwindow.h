@@ -27,6 +27,8 @@ private:
     GroovePlayer *player;
     PlayerThread *player_thread;
 
+    GrooveQueueItem *seek_down = NULL;
+
     void refreshToggleCaption();
     void queueFile(QString file_path);
 
@@ -38,6 +40,9 @@ private slots:
     void on_toggleBtn_clicked();
     void on_nextBtn_clicked();
     void on_prevBtn_clicked();
+    void on_seekBar_sliderPressed();
+    void on_seekBar_sliderReleased();
+    void on_seekBar_sliderMoved(int position);
 };
 
 #endif // MAINWINDOW_H
