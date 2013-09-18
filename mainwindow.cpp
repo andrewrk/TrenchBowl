@@ -18,6 +18,7 @@ MainWindow::MainWindow(QWidget *parent) :
 
     // start a player thread and listen to events
     groove_init();
+    groove_set_logging(GROOVE_LOG_INFO);
     this->player = groove_create_player();
     this->player_thread = new PlayerThread(player, this);
     bool ok;
@@ -201,6 +202,5 @@ void MainWindow::on_seekBar_sliderMoved(int position)
     double min = ui->seekBar->minimum();
     double max = ui->seekBar->maximum();
     double pos = duration * ((position - min) / (max - min));
-    qDebug() << "seek to" << pos;
     groove_player_seek(player, seek_down, pos);
 }
