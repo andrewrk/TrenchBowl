@@ -74,7 +74,7 @@ static QString fileDescription(GrooveFile *file) {
         QString title = QString::fromUtf8(groove_tag_value(title_tag));
         return QString("%1 - %2").arg(artist, title);
     } else {
-        QFileInfo info(file->filename);
+        QFileInfo info(QString::fromUtf8(file->filename));
         return info.fileName();
     }
 }
