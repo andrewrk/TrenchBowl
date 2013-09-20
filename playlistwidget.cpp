@@ -3,6 +3,7 @@
 #include <QtDebug>
 #include <QDragEnterEvent>
 #include <QUrl>
+#include <QMimeData>
 
 
 PlaylistWidget::PlaylistWidget(QWidget *parent) :

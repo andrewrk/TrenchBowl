@@ -11,6 +11,8 @@ void PlayerThread::run() {
     GroovePlayerEvent event;
     while (groove_player_event_wait(player, &event) >= 0) {
         switch (event.type) {
+        case GROOVE_PLAYER_EVENT_BUFFERUNDERRUN:
+            break;
         case GROOVE_PLAYER_EVENT_NOWPLAYING:
             emit nowPlayingUpdated();
             break;
