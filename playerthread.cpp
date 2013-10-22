@@ -8,12 +8,12 @@ PlayerThread::PlayerThread(GroovePlayer *player, QObject *parent) :
 }
 
 void PlayerThread::run() {
-    GroovePlayerEvent event;
-    while (groove_player_event_wait(player, &event) >= 0) {
+    GrooveEvent event;
+    while (groove_player_event_get(player, &event, 1) >= 0) {
         switch (event.type) {
-        case GROOVE_PLAYER_EVENT_BUFFERUNDERRUN:
+        case GROOVE_EVENT_BUFFERUNDERRUN:
             break;
-        case GROOVE_PLAYER_EVENT_NOWPLAYING:
+        case GROOVE_EVENT_NOWPLAYING:
             emit nowPlayingUpdated();
             break;
         }

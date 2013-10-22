@@ -25,14 +25,27 @@ public:
 private:
     Ui::MainWindow *ui;
 
+    GroovePlaylist *playlist;
     GroovePlayer *player;
     PlayerThread *player_thread;
 
     GroovePlaylistItem *seek_down = NULL;
 
+
+    double rg_default = 0.25;
+    double rg_preamp = 0.75;
+
+    enum ReplayGainMode {
+        REPLAYGAIN_OFF,
+        REPLAYGAIN_TRACK,
+        REPLAYGAIN_ALBUM,
+    };
+
+    ReplayGainMode replaygain_mode = REPLAYGAIN_OFF;
+
     void refreshToggleCaption();
     void queueFile(QString file_path);
-    void setSelectedRgMode(GrooveReplayGainMode mode);
+    void setSelectedRgMode(ReplayGainMode mode);
 
 private slots:
     void refreshNowPlaying();

@@ -26,8 +26,10 @@ MainWindow::MainWindow(QWidget *parent) :
     // start a player thread and listen to events
     groove_init();
     groove_set_logging(GROOVE_LOG_INFO);
-    this->player = groove_create_player();
-    this->player_thread = new PlayerThread(player, this);
+    this->playlist = groove_playlist_create();
+    this->player = groove_player_create();
+    this->player_thread = new PlayerThread(this->player, this);
+    groove_player_attach(this->player, this->playlist);
     bool ok;
     ok = connect(this->player_thread, SIGNAL(nowPlayingUpdated()), this, SLOT(refreshNowPlaying()));
     Q_ASSERT(ok);
@@ -43,25 +45,22 @@ MainWindow::MainWindow(QWidget *parent) :
     Q_ASSERT(ok);
     timer->start();
 
-    double rg_default = groove_player_get_replaygain_default(player);
-    double rg_preamp = groove_player_get_replaygain_preamp(player);
-    double vol = groove_player_get_volume(player);
-
-    setSliderDouble(ui->volSlider, vol);
+    setSliderDouble(ui->volSlider, playlist->volume);
     setSliderDouble(ui->preampSlider, rg_preamp);
     setSliderDouble(ui->defaultSlider, rg_default);
-
 }
 
 MainWindow::~MainWindow()
 {
-    groove_destroy_player(player);
+    groove_player_detach(player);
+    groove_player_destroy(player);
+    groove_playlist_destroy(playlist);
     delete ui;
 }
 
 void MainWindow::refreshToggleCaption()
 {
-    ui->toggleBtn->setText(groove_player_playing(player) ? "Pause" : "Play");
+    ui->toggleBtn->setText(groove_playlist_playing(playlist) ? "Pause" : "Play");
 }
 
 
@@ -80,20 +79,21 @@ static QString fileDescription(GrooveFile *file) {
 }
 
 void MainWindow::queueFile(QString file_path) {
-    GrooveFile *file = groove_open(file_path.toUtf8().data());
+    GrooveFile *file = groove_file_open(file_path.toUtf8().data());
     if (!file) {
         qDebug() << "Error opening" << file_path;
         return;
     }
-    groove_player_insert(player, file, NULL);
+    groove_playlist_insert(playlist, file, 1.0, NULL);
     refreshNowPlaying();
 }
 
-void MainWindow::setSelectedRgMode(GrooveReplayGainMode mode)
+void MainWindow::setSelectedRgMode(ReplayGainMode )
 {
     foreach(QListWidgetItem *item, ui->playlist->selectedItems()) {
         GroovePlaylistItem *q_item = (GroovePlaylistItem *)item->data(Qt::UserRole).value<void *>();
-        groove_player_set_replaygain_mode(player, q_item, mode);
+        // TODO adjust gain based on replaygain
+        groove_playlist_set_gain(playlist, q_item, 1.0);
     }
 }
 
@@ -149,7 +149,7 @@ void MainWindow::removeSelectedItems()
 {
     foreach (QListWidgetItem *item, ui->playlist->selectedItems()) {
         GroovePlaylistItem *q_item = (GroovePlaylistItem *)item->data(Qt::UserRole).value<void *>();
-        groove_player_remove(player, q_item);
+        groove_playlist_remove(playlist, q_item);
     }
     qDeleteAll(ui->playlist->selectedItems());
 }
@@ -177,7 +177,7 @@ void MainWindow::refreshNowPlaying() {
     }
 
     ui->playlist->clear();
-    GroovePlaylistItem *node = player->playlist_head;
+    GroovePlaylistItem *node = playlist->head;
     while (node) {
         ui->playlist->addItem(fileDescription(node->file));
         QListWidgetItem *widget_item = ui->playlist->item(ui->playlist->count() - 1);
@@ -194,10 +194,10 @@ void MainWindow::refreshNowPlaying() {
 
 void MainWindow::on_toggleBtn_clicked()
 {
-    if (groove_player_playing(player))
-        groove_player_pause(player);
+    if (groove_playlist_playing(playlist))
+        groove_playlist_pause(playlist);
     else
-        groove_player_play(player);
+        groove_playlist_play(playlist);
     refreshToggleCaption();
 }
 
@@ -206,7 +206,7 @@ void MainWindow::on_nextBtn_clicked()
     GroovePlaylistItem *item;
     groove_player_position(player, &item, NULL);
     if (item && item->next)
-        groove_player_seek(player, item->next, 0);
+        groove_playlist_seek(playlist, item->next, 0);
 }
 
 void MainWindow::on_prevBtn_clicked()
@@ -214,7 +214,7 @@ void MainWindow::on_prevBtn_clicked()
     GroovePlaylistItem *item;
     groove_player_position(player, &item, NULL);
     if (item && item->prev)
-        groove_player_seek(player, item->prev, 0);
+        groove_playlist_seek(playlist, item->prev, 0);
 }
 
 void MainWindow::on_seekBar_sliderPressed()
@@ -238,13 +238,13 @@ void MainWindow::on_seekBar_sliderMoved(int position)
     double pos = duration * ((position - min) / (max - min));
 
     ui->posLbl->setText(secondsDisplay(pos));
-    groove_player_seek(player, seek_down, pos);
+    groove_playlist_seek(playlist, seek_down, pos);
 }
 
 void MainWindow::on_playlist_itemDoubleClicked(QListWidgetItem *item)
 {
     GroovePlaylistItem *q_item = (GroovePlaylistItem *)item->data(Qt::UserRole).value<void *>();
-    groove_player_seek(player, q_item, 0);
+    groove_playlist_seek(playlist, q_item, 0);
 }
 
 void MainWindow::on_preampSlider_sliderMoved(int position)
@@ -252,7 +252,8 @@ void MainWindow::on_preampSlider_sliderMoved(int position)
     double min = ui->preampSlider->minimum();
     double max = ui->preampSlider->maximum();
     double val = (position - min) / (max - min);
-    groove_player_set_replaygain_preamp(player, val);
+    rg_preamp = val;
+    // TODO update gain on the item
 }
 
 void MainWindow::on_defaultSlider_sliderMoved(int position)
@@ -260,7 +261,8 @@ void MainWindow::on_defaultSlider_sliderMoved(int position)
     double min = ui->preampSlider->minimum();
     double max = ui->preampSlider->maximum();
     double val = (position - min) / (max - min);
-    groove_player_set_replaygain_default(player, val);
+    rg_default = val;
+    // TODO update gain on the item
 }
 
 void MainWindow::on_volSlider_sliderMoved(int position)
@@ -268,20 +270,20 @@ void MainWindow::on_volSlider_sliderMoved(int position)
     double min = ui->volSlider->minimum();
     double max = ui->volSlider->maximum();
     double val = (position - min) / (max - min);
-    groove_player_set_volume(player, val);
+    groove_playlist_set_volume(playlist, val);
 }
 
 void MainWindow::on_playlist_itemClicked(QListWidgetItem *item)
 {
     GroovePlaylistItem *q_item = (GroovePlaylistItem *)item->data(Qt::UserRole).value<void *>();
-    switch (q_item->replaygain_mode) {
-    case GROOVE_REPLAYGAINMODE_OFF:
+    switch (replaygain_mode) {
+    case REPLAYGAIN_OFF:
         ui->optRgOff->setChecked(true);
         break;
-    case GROOVE_REPLAYGAINMODE_ALBUM:
+    case REPLAYGAIN_ALBUM:
         ui->optRgAlbum->setChecked(true);
         break;
-    case GROOVE_REPLAYGAINMODE_TRACK:
+    case REPLAYGAIN_TRACK:
         ui->optRgTrack->setChecked(true);
         break;
     }
@@ -300,17 +302,17 @@ void MainWindow::on_playlist_itemClicked(QListWidgetItem *item)
 
 void MainWindow::on_optRgOff_clicked()
 {
-    setSelectedRgMode(GROOVE_REPLAYGAINMODE_OFF);
+    setSelectedRgMode(REPLAYGAIN_OFF);
 }
 
 void MainWindow::on_optRgAlbum_clicked()
 {
 
-    setSelectedRgMode(GROOVE_REPLAYGAINMODE_ALBUM);
+    setSelectedRgMode(REPLAYGAIN_ALBUM);
 }
 
 void MainWindow::on_optRgTrack_clicked()
 {
 
-    setSelectedRgMode(GROOVE_REPLAYGAINMODE_TRACK);
+    setSelectedRgMode(REPLAYGAIN_TRACK);
 }
