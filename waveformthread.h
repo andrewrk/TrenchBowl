@@ -10,8 +10,9 @@ class WaveformThread : public QThread
 {
     Q_OBJECT
 public:
-    explicit WaveformThread(WaveformWidget *waveform_widget, GrooveSink *sink, QObject *parent = 0);
+    explicit WaveformThread(WaveformWidget *waveform_widget, GrooveSink *sink, GroovePlayer *player, QObject *parent = 0);
     
+    bool abort = false;
 signals:
     
 public slots:
@@ -19,6 +20,7 @@ public slots:
 private:
     WaveformWidget *waveform_widget;
     GrooveSink *sink;
+    GroovePlayer *player;
 
     void run();
     

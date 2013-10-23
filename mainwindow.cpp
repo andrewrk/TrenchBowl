@@ -33,7 +33,7 @@ MainWindow::MainWindow(QWidget *parent) :
     this->waveform_sink->audio_format.sample_fmt = GROOVE_SAMPLE_FMT_DBL;
     this->waveform_sink->audio_format.sample_rate = 44100;
     this->player_thread = new PlayerThread(this->player, this);
-    this->waveform_thread = new WaveformThread(this->ui->waveformWidget, this->waveform_sink, this);
+    this->waveform_thread = new WaveformThread(this->ui->waveformWidget, this->waveform_sink, this->player, this);
     this->waveform_thread->start();
     groove_player_attach(this->player, this->playlist);
     groove_sink_attach(this->waveform_sink, this->playlist);
@@ -59,7 +59,10 @@ MainWindow::MainWindow(QWidget *parent) :
 
 MainWindow::~MainWindow()
 {
+    waveform_thread->abort = true;
+    waveform_thread->wait();
     groove_player_detach(player);
+    groove_sink_detach(waveform_sink);
     groove_player_destroy(player);
     groove_playlist_destroy(playlist);
     delete ui;
