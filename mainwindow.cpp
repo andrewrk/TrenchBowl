@@ -40,6 +40,7 @@ MainWindow::MainWindow(QWidget *parent) :
     groove_player_attach(this->player, this->playlist);
     groove_sink_attach(this->waveform_sink, this->playlist);
     bool ok;
+    Q_UNUSED(ok);
     ok = connect(this->player_thread, SIGNAL(nowPlayingUpdated()), this, SLOT(refreshNowPlaying()));
     Q_ASSERT(ok);
     ok = connect(this->ui->playlist, SIGNAL(queueUrl(QUrl)), this, SLOT(queueUrl(QUrl)));
