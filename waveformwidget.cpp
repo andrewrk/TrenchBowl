@@ -42,7 +42,7 @@ void WaveformWidget::paintEvent(QPaintEvent *)
 
     double *buf = reinterpret_cast<double*>(buffer->data[0]);
 
-    painter.setPen(Qt::black);
+    painter.setPen(Qt::blue);
 
     int sample_index = 0;
     for (int x = 0; x < this->width(); x += 1) {

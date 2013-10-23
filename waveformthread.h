@@ -13,6 +13,8 @@ public:
     explicit WaveformThread(WaveformWidget *waveform_widget, GrooveSink *sink, GroovePlayer *player, QObject *parent = 0);
     
     bool abort = false;
+
+    static void flush(GrooveSink *sink);
 signals:
     
 public slots:
@@ -21,6 +23,8 @@ private:
     WaveformWidget *waveform_widget;
     GrooveSink *sink;
     GroovePlayer *player;
+
+    bool flush_flag = false;
 
     void run();
     

@@ -34,6 +34,8 @@ MainWindow::MainWindow(QWidget *parent) :
     this->waveform_sink->audio_format.sample_rate = 44100;
     this->player_thread = new PlayerThread(this->player, this);
     this->waveform_thread = new WaveformThread(this->ui->waveformWidget, this->waveform_sink, this->player, this);
+    this->waveform_sink->userdata = this->waveform_thread;
+    this->waveform_sink->flush = WaveformThread::flush;
     this->waveform_thread->start();
     groove_player_attach(this->player, this->playlist);
     groove_sink_attach(this->waveform_sink, this->playlist);

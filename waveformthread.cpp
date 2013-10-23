@@ -8,9 +8,16 @@ WaveformThread::WaveformThread(WaveformWidget *waveform_widget, GrooveSink *sink
 {
 }
 
+void WaveformThread::flush(GrooveSink *sink)
+{
+    WaveformThread *waveform_thread = reinterpret_cast<WaveformThread*>(sink->userdata);
+    waveform_thread->flush_flag = true;
+}
+
 void WaveformThread::run()
 {
     GrooveBuffer *buffer;
+
     GroovePlaylistItem *waveform_item = NULL;
     double waveform_pos = 0;
 
@@ -18,11 +25,12 @@ void WaveformThread::run()
         GroovePlaylistItem *player_item;
         double player_pos;
         groove_player_position(player, &player_item, &player_pos);
-        if (waveform_item != player_item || waveform_pos > player_pos) {
+        if (!flush_flag && (waveform_item != player_item || waveform_pos > player_pos)) {
             // waveform is ahead; sleep
             QThread::msleep(5);
             continue;
         }
+        flush_flag = false;
         int result = groove_sink_get_buffer(sink, &buffer, 1);
         if (result == GROOVE_BUFFER_YES) {
             waveform_item = buffer->item;
