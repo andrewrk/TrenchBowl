@@ -28,8 +28,15 @@ MainWindow::MainWindow(QWidget *parent) :
     groove_set_logging(GROOVE_LOG_INFO);
     this->playlist = groove_playlist_create();
     this->player = groove_player_create();
+    this->waveform_sink = groove_sink_create();
+    this->waveform_sink->audio_format.channel_layout = GROOVE_CH_LAYOUT_STEREO;
+    this->waveform_sink->audio_format.sample_fmt = GROOVE_SAMPLE_FMT_DBL;
+    this->waveform_sink->audio_format.sample_rate = 44100;
     this->player_thread = new PlayerThread(this->player, this);
+    this->waveform_thread = new WaveformThread(this->ui->waveformWidget, this->waveform_sink, this);
+    this->waveform_thread->start();
     groove_player_attach(this->player, this->playlist);
+    groove_sink_attach(this->waveform_sink, this->playlist);
     bool ok;
     ok = connect(this->player_thread, SIGNAL(nowPlayingUpdated()), this, SLOT(refreshNowPlaying()));
     Q_ASSERT(ok);

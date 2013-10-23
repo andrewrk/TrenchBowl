@@ -7,6 +7,7 @@
 
 #include <groove.h>
 #include "playerthread.h"
+#include "waveformthread.h"
 
 
 namespace Ui {
@@ -27,7 +28,9 @@ private:
 
     GroovePlaylist *playlist;
     GroovePlayer *player;
+    GrooveSink *waveform_sink;
     PlayerThread *player_thread;
+    WaveformThread *waveform_thread;
 
     GroovePlaylistItem *seek_down = NULL;
 
