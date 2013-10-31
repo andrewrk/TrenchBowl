@@ -8,7 +8,7 @@ PlayerThread::PlayerThread(GroovePlayer *player, QObject *parent) :
 }
 
 void PlayerThread::run() {
-    GrooveEvent event;
+    GroovePlayerEvent event;
     while (groove_player_event_get(player, &event, 1) >= 0) {
         switch (event.type) {
         case GROOVE_EVENT_BUFFERUNDERRUN:
