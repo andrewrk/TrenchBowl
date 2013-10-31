@@ -63,10 +63,11 @@ MainWindow::MainWindow(QWidget *parent) :
 
 MainWindow::~MainWindow()
 {
+
+    groove_sink_detach(waveform_sink);
     waveform_thread->abort = true;
     waveform_thread->wait();
     groove_player_detach(player);
-    groove_sink_detach(waveform_sink);
     groove_player_destroy(player);
     groove_playlist_destroy(playlist);
     delete ui;
