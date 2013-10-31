@@ -25,6 +25,7 @@ MainWindow::MainWindow(QWidget *parent) :
 
     // start a player thread and listen to events
     groove_init();
+    atexit(groove_finish);
     groove_set_logging(GROOVE_LOG_INFO);
     this->playlist = groove_playlist_create();
     this->player = groove_player_create();
