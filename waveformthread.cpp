@@ -31,7 +31,7 @@ void WaveformThread::run()
             continue;
         }
         flush_flag = false;
-        int result = groove_sink_get_buffer(sink, &buffer, 1);
+        int result = groove_sink_buffer_get(sink, &buffer, 1);
         if (result == GROOVE_BUFFER_YES) {
             waveform_item = buffer->item;
             waveform_pos = buffer->pos;
