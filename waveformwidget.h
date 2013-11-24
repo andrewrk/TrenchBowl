@@ -4,7 +4,7 @@
 #include <QWidget>
 #include <QMutex>
 
-#include "groove.h"
+#include <groove/groove.h>
 
 class WaveformWidget : public QWidget
 {

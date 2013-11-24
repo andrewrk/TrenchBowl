@@ -4,7 +4,7 @@
 #include <QThread>
 
 #include "waveformwidget.h"
-#include "groove.h"
+#include <grooveplayer/player.h>
 
 class WaveformThread : public QThread
 {

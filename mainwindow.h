@@ -5,7 +5,7 @@
 #include <QUrl>
 #include <QListWidgetItem>
 
-#include <groove.h>
+#include <groove/groove.h>
 #include "playerthread.h"
 #include "waveformthread.h"
 

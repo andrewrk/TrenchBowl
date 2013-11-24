@@ -3,7 +3,7 @@
 
 #include <QThread>
 
-#include "groove.h"
+#include <grooveplayer/player.h>
 
 class PlayerThread : public QThread
 {

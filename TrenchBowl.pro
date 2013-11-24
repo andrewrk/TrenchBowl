@@ -29,3 +29,4 @@ HEADERS  += mainwindow.h \
 FORMS    += mainwindow.ui
 
 LIBS += -lgroove
+LIBS += -lgrooveplayer
