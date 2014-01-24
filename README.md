@@ -1,11 +1,11 @@
 # TrenchBowl
 
 Simple music player UI to demonstrate
-[libgroove](https://github.com/superjoe30/libgroove).
+[libgroove](https://github.com/andrewrk/libgroove).
 
 ## Building
 
-After you install [libgroove](https://github.com/superjoe30/libgroove)
+After you install [libgroove](https://github.com/andrewrk/libgroove)
 you should be able to open the project file with Qt Creator and run it.
 
 ## Screenshot
